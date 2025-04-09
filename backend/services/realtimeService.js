@@ -5,25 +5,27 @@ let io;
 exports.init = (server) => {
   io = socketIO(server, {
     cors: {
-      origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-      methods: ['GET', 'POST']
-    }
+      origin: "*", // Permite todas origens (em desenvolvimento)
+      methods: ["GET", "POST"]
+    },
+    path: "/socket.io/" // Caminho explícito
   });
 
   io.on('connection', (socket) => {
-    console.log('Novo cliente conectado:', socket.id);
-
-    socket.on('subscribe', (deliveryPersonId) => {
-      socket.join(`delivery_${deliveryPersonId}`);
+    console.log('✅ Cliente conectado:', socket.id);
+    
+    socket.on('subscribe', (room) => {
+      socket.join(room);
+      console.log(`📌 Cliente entrou na sala: ${room}`);
     });
 
     socket.on('disconnect', () => {
-      console.log('Cliente desconectado:', socket.id);
+      console.log('❌ Cliente desconectado:', socket.id);
     });
   });
 };
 
 exports.getIO = () => {
-  if (!io) throw new Error('Socket.io não inicializado');
+  if (!io) throw new Error("Socket.io não inicializado");
   return io;
 };
